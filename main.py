@@ -1,6 +1,8 @@
 import pygame
 from player import Player
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, ASTEROID_MIN_RADIUS, ASTEROID_KINDS, ASTEROID_SPAWN_RATE, ASTEROID_MAX_RADIUS
+from asteroid import Asteroid
+from asteroidfield import AsteroidField
+from constants import *
 
 def main():
     pygame.init()
@@ -20,13 +22,24 @@ def main():
     # 각 프레임마다 update가 실행되어야 하는 오브젝트들을 담을 그룹
     drawable = pygame.sprite.Group()
     # 각 프레임마다 draw가 실행되어야 하는 오브젝트들을 담을 그룹
+    asteroids = pygame.sprite.Group()
+    # 운석 객체들을 담을 그룹
 
     Player.containers = (updatable, drawable)
     # Player 클래스 변수 containers에 (updatable, drawable) 할당
     # ===> 모든 플레이어 인스턴스들은 위 두 그룹에 속하게 된다
 
+    Asteroid.containers = (asteroids, updatable, drawable)
+    # Asteroid 클래스는 추가로 asteroids 그룹에도 속한다
+
+    AsteroidField.containers = (updatable)
+    # AsteroidField 클래스는 따로 그려지지 않으므로 updatable 그룹에만 속한다
+    # update 함수로 시간을 체크해 스폰 쿨타임마다 운석 생성
+
     player = Player(x=SCREEN_WIDTH/2, y=SCREEN_HEIGHT/2)
     # Player 오브젝트 생성
+
+    asteroidfield = AsteroidField()
 
 
     while True:
