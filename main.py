@@ -16,6 +16,15 @@ def main():
     dt = 0
     # 루프 안에서 프레임 당 경과시간을 저장할 변수
 
+    updatable = pygame.sprite.Group()
+    # 각 프레임마다 update가 실행되어야 하는 오브젝트들을 담을 그룹
+    drawable = pygame.sprite.Group()
+    # 각 프레임마다 draw가 실행되어야 하는 오브젝트들을 담을 그룹
+
+    Player.containers = (updatable, drawable)
+    # Player 클래스 변수 containers에 (updatable, drawable) 할당
+    # ===> 모든 플레이어 인스턴스들은 위 두 그룹에 속하게 된다
+
     player = Player(x=SCREEN_WIDTH/2, y=SCREEN_HEIGHT/2)
     # Player 오브젝트 생성
 
@@ -32,11 +41,13 @@ def main():
         # 화면을 검정색으로 칠하기
         # 단순히 color="black" 입력도 가능
 
-        player.update(dt)
-        # 플레이어 그리기전 갱신
+        for obj in updatable:
+            obj.update(dt)
+            # updatable 그룹에 속한 모든 오브젝트들 update 함수 실행
 
-        player.draw(screen)
-        # 플레이어 화면에 그리기
+        for obj in drawable:
+            obj.draw(screen)
+            # drawable 그룹에 속한 모든 오브젝트들 draw 함수 실행
 
         pygame.display.flip()
         # 화면 리프레쉬
