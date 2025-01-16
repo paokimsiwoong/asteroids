@@ -1,5 +1,6 @@
 import pygame
 from circleshape import CircleShape
+from shot import Shot
 from constants import *
 
 class Player(CircleShape):
@@ -10,6 +11,9 @@ class Player(CircleShape):
         # => CircleShape 상속
 
         self.rotation = 0
+
+        self.shoot_timer = 0
+        # 총알 쿨타임 확인용 타이머
     
     def triangle(self):
         # 플레이어 중심점(현재 위치) self.position(pygame.Vector2(x,y))에서 
@@ -37,12 +41,21 @@ class Player(CircleShape):
         self.position += forward * PLAYER_SPEED * dt
         # self.position에 우주선 진행방향 PLAYER_SPEED * dt 크기 벡터 더하기
     
+    def shoot(self):
+        shot = Shot(self.position.x, self.position.y)
+        # 플레이어 위치에 총알 오브젝트 생성
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+
+        self.shoot_timer = PLAYER_SHOOT_COOLDOWN
+
     def draw(self, screen):
         pygame.draw.polygon(surface=screen, color="white", points=self.triangle(), width=2)
         # surface 인수에 주어진 스크린에 색 color, 두께 width인 다각형을 그린다
         # 다각형의 꼭지점들의 좌표는 points에서 입력
 
     def update(self, dt):
+        self.shoot_timer -= dt
+
         keys = pygame.key.get_pressed()
         # 플레이어 키 입력 여부를 bool로 담고 있는 시퀀스
         # 키 이름으로 indexing 접근 
@@ -63,3 +76,8 @@ class Player(CircleShape):
             # pygame.K_d => 키보드 d 키
             # 오른쪽 회전
             self.rotate(dt)
+        if keys[pygame.K_SPACE]:
+            # 스페이스 바 입력 시
+            # 총알 발사
+            if self.shoot_timer <= 0:
+                self.shoot()

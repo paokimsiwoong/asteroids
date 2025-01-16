@@ -4,6 +4,7 @@ import pygame
 from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
+from shot import Shot
 from constants import *
 
 def main():
@@ -26,10 +27,8 @@ def main():
     # 각 프레임마다 draw가 실행되어야 하는 오브젝트들을 담을 그룹
     asteroids = pygame.sprite.Group()
     # 운석 객체들을 담을 그룹 => 운석 충돌 확인할 때 모든 운석 충돌 체크에 사용
-
-    Player.containers = (updatable, drawable)
-    # Player 클래스 변수 containers에 (updatable, drawable) 할당
-    # ===> 모든 플레이어 인스턴스들은 위 두 그룹에 속하게 된다
+    shots = pygame.sprite.Group()
+    # 총알 객체들을 담을 그룹
 
     Asteroid.containers = (asteroids, updatable, drawable)
     # Asteroid 클래스는 추가로 asteroids 그룹에도 속한다
@@ -38,10 +37,18 @@ def main():
     # AsteroidField 클래스는 따로 그려지지 않으므로 updatable 그룹에만 속한다
     # update 함수로 시간을 체크해 스폰 쿨타임마다 운석 생성
 
+    Shot.containers = (shots, updatable, drawable)
+    # Shot은 shots라는 전용 그룹에 속한다
+
+    Player.containers = (updatable, drawable)
+    # Player 클래스 변수 containers에 (updatable, drawable) 할당
+    # ===> 모든 플레이어 인스턴스들은 위 두 그룹에 속하게 된다
+
+    asteroidfield = AsteroidField()
+
     player = Player(x=SCREEN_WIDTH/2, y=SCREEN_HEIGHT/2)
     # Player 오브젝트 생성
 
-    asteroidfield = AsteroidField()
 
 
     while True:
@@ -54,8 +61,29 @@ def main():
             obj.update(dt)
             # updatable 그룹에 속한 모든 오브젝트들 update 함수 실행
 
-        for obj in asteroids:
-            if obj.check_collision(player):
+
+        for asteroid in asteroids:
+            destroyed = False
+            # 플레이어 충돌 확인 전 운석 삭제 여부 루프를 돌리기 위해 추가하는 bool
+
+            for shot in shots:
+                if asteroid.check_collision(shot):
+                    asteroid.split()
+                    # split() 메소드는 원래 운석을 삭제하면서
+                    # 크기가 충분하면 작고 더 빠른 두개의 운석을 생성한다
+                    shot.kill()
+                    # kill()은 pygame 빌트인 메소드 
+                    # => 실행되면 해당 객체를 해당 객체가 속한 모든 그룹에서 삭제한다
+
+                    destroyed = True
+                    # 해당 운석이 두개로 쪼개져도 원래 운석과 플레이어간의 충돌 체크는 없어야 하므로 True
+                    break
+                    # 다른 총알과의 충돌 확인은 중단
+            
+            if destroyed:
+                continue
+
+            if asteroid.check_collision(player):
                 print("Game over!")
                 exit()
                 # sys.exit() 함수
