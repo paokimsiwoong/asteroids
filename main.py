@@ -32,6 +32,9 @@ def main():
         # 화면을 검정색으로 칠하기
         # 단순히 color="black" 입력도 가능
 
+        player.update(dt)
+        # 플레이어 그리기전 갱신
+
         player.draw(screen)
         # 플레이어 화면에 그리기
 
