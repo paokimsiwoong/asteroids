@@ -14,6 +14,11 @@ class CircleShape(pygame.sprite.Sprite):
         self.velocity = pygame.Vector2(0, 0)
         self.radius = radius
 
+    def check_collision(self, other):
+        # 충돌 판정 함수
+        return self.position.distance_to(other.position) <= (self.radius + other.radius)
+        # 멤버 변수 position은 pygame.Vector2이고 이 클래스에는 멤버메소드 distance_to(pygame.Vector2)가 있어 거리 계산 가능
+
     def draw(self, screen):
         # sub-classes must override
         pass

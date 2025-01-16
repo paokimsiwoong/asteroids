@@ -1,3 +1,5 @@
+from sys import exit
+
 import pygame
 from player import Player
 from asteroid import Asteroid
@@ -23,7 +25,7 @@ def main():
     drawable = pygame.sprite.Group()
     # 각 프레임마다 draw가 실행되어야 하는 오브젝트들을 담을 그룹
     asteroids = pygame.sprite.Group()
-    # 운석 객체들을 담을 그룹
+    # 운석 객체들을 담을 그룹 => 운석 충돌 확인할 때 모든 운석 충돌 체크에 사용
 
     Player.containers = (updatable, drawable)
     # Player 클래스 변수 containers에 (updatable, drawable) 할당
@@ -48,15 +50,22 @@ def main():
                 return
         # 유저가 gui창을 닫았을 경우 루프를 종료하게하는 코드
             
+        for obj in updatable:
+            obj.update(dt)
+            # updatable 그룹에 속한 모든 오브젝트들 update 함수 실행
+
+        for obj in asteroids:
+            if obj.check_collision(player):
+                print("Game over!")
+                exit()
+                # sys.exit() 함수
+                # return을 써도 main함수가 종료되면서 동일 효과
+
         screen.fill(color=(0,0,0))
         # pygame.Surface.fill() 함수
         # color에 RGB 또는 RGBA 값을 tuple형태로 입력
         # 화면을 검정색으로 칠하기
         # 단순히 color="black" 입력도 가능
-
-        for obj in updatable:
-            obj.update(dt)
-            # updatable 그룹에 속한 모든 오브젝트들 update 함수 실행
 
         for obj in drawable:
             obj.draw(screen)
